@@ -136,6 +136,16 @@ if __name__ == '__main__':
     if xmpp.connect():
         
         xmpp.process(block=False)
-                
+        while(True):
+            
+            menu()   
+            opcion = input("Ingrese la opcion que desea realizar: \n")
+            
+            if(opcion == 1):
+                print("FLOADING")
+            if(opcion == 2):
+                print("Distance vector routing")
+            if(opcion == 3):
+                print("Link state routing")
     else:
         print("Unable to connect.")
