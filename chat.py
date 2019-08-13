@@ -143,6 +143,15 @@ if __name__ == '__main__':
             
             if(opcion == 1):
                 print("FLOADING")
+                
+                ##Envio de mensajes
+                user= input("Usuario a quien desea enviar mensaje: ")
+                message = input("Mensaje:")
+                print("Enviando mensaje")
+                xmpp.send_message(mto= user, mbody = message, mtype = 'chat')
+                print("Su mensaje fue enviado exitosamente\n")
+             
+                
             if(opcion == 2):
                 print("Distance vector routing")
             if(opcion == 3):
