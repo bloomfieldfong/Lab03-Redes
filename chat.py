@@ -9,13 +9,11 @@ from sleekxmpp.stanza import Message, Presence, Iq, StreamError
 import json
 #from dvr import *
    
-
 class EchoBot(sleekxmpp.ClientXMPP):
 
     def __init__(self, jid, password, opcion):
 
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
-
         #Evento de login y registro
         if (opcion == "1"):
             self.add_event_handler("session_start", self.start)
@@ -23,7 +21,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
             self.add_event_handler("register", self.register)
             self.add_event_handler("session_start", self.start)
         
-        self.add_event_handler("message", self.message)
+        self.add_event_handler("message", self.message) 
 
         self.register_plugin('xep_0047', {
             'auto_accept': True
@@ -42,15 +40,32 @@ class EchoBot(sleekxmpp.ClientXMPP):
 
     #Procesa los mensajes entrantes 
     def message(self, msg):
-        if msg['type'] in ('chat', 'normal'):
-            print('------------------------------------------------------------------------------------------')
-            print('From:' )
-            print(msg['from'])
-            print('------------------------------------------------------------------------------------------')
-            print(msg['subject'])
-            print(msg['body'])
-            print('------------------------------------------------------------------------------------------')
 
+        if msg['type'] in ('chat', 'normal'):
+            y = msg['body']
+            print(y)
+            
+            contactos = xmpp.client_roster
+            contactos = contactos.keys()
+            contactos = list(contactos)
+            if(y['to'] == y['receiver']):
+                for i in range(len(y)) :
+
+                    full_message = {
+                    "transmitter": y['to'],
+                    "receiver": user,
+                    "jumps": str(x),
+                    "distance": str(x),
+                    "node_list": nodos,
+                    "message": message, 
+                    "to": contactos[i]
+                    }   
+                    full_message = str(full_message)
+                    ##mto = (y[i])
+                    xmpp.send_message(mto= 'michi222@alumchat.xyz', mbody = full_message, mtype = 'chat')
+                print("Message sent\n")
+
+            
     def delete(self):
         resp = self.Iq()
         resp['type'] = 'set'
@@ -137,11 +152,16 @@ if __name__ == '__main__':
     #Conexion con el server
     if xmpp.connect():
         
-        xmpp.process(block=False)
+        xmpp.process(block=False) 
+
+        x = 0
+        nodos = ''
+        
         while(True):
             main_menu()
             main_option = input("What would you like to do?: \n>> ")
             # 1. Add, 2. Show, 3. Send, 4. Log off
+
 
             if (main_option == "1"):
                 user = input("Who are you trying to add?: ")
@@ -155,25 +175,38 @@ if __name__ == '__main__':
 
             elif (main_option == "3"):
                 algorithm_menu()   
+                
                 opcion = input("Which algorithm would you like to use?: \n>> ")
                 if(opcion == "1"):
                     print("FLOADING")
+                
+                    x = x + 1
+                    nodos = nodos + "-" + opts.jid
+                    print(x)
                     # Send message
                     user = input("Who is the message for?: ")
                     message = input("Message:")
-                    full_message = {
-                        "transmitter": "this_user",
-                        "receiver": user,
-                        "jumps": "jumps",
-                        "distance": "distance",
-                        "node_list": "node_list",
-                        "message": message
-                    }
+                    
+                    
                     print("Sending message...\n")
-                    for i in range(contacts.keys) :
-                        if(user != i):
-                            print("Sending to everybody")
-                            xmpp.send_message(mto= user, mbody = message, mtype = 'chat')
+                    y = xmpp.client_roster
+                    y = y.keys()
+                    y = list(y)
+
+                    for i in range(len(y)) :
+
+                        full_message = {
+                        "transmitter": opts.jid,
+                        "receiver": user,
+                        "jumps": str(x),
+                        "distance": str(x),
+                        "node_list": nodos,
+                        "message": message, 
+                        "to": y[i]
+                        }   
+                        full_message = str(full_message)
+                        ##mto = (y[i])
+                        xmpp.send_message(mto= 'michi222@alumchat.xyz', mbody = full_message, mtype = 'chat')
                     print("Message sent\n")
                 
                     
