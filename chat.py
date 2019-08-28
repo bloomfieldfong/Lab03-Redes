@@ -6,10 +6,8 @@ from optparse import OptionParser
 from sleekxmpp.exceptions import IqError, IqTimeout
 from opciones import *
 from sleekxmpp.stanza import Message, Presence, Iq, StreamError
-import json
-import yaml
-#from dvr import *
-   
+
+
 class EchoBot(sleekxmpp.ClientXMPP):
 
     def __init__(self, jid, password, opcion):
@@ -28,8 +26,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
             'auto_accept': True
         })
 
-        #self.add_event_handler("ibb_stream_start", self.stream_opened, threaded=True)
-        #self.add_event_handler("ibb_stream_data", self.stream_data)
+
 
     #Procesa el evento session_start
     def start(self, event):
@@ -43,47 +40,57 @@ class EchoBot(sleekxmpp.ClientXMPP):
     def message(self, msg):
         resp = self.Iq()
         user =  self.boundjid.user
-
-        user = user+'alumchat.xyz'
+        user = user+'@alumchat.xyz'
+        
         if msg['type'] in ('chat', 'normal'):
 
-            y = (str(msg))
-            print(y)
-            print(type(y))
+            ## 0 - Persona que quiere enviar
+            ## 1 - Usuario a el que queremos enviar
+            ## 2 - Saltos
+            ## 3 - Distancia
+            ## 4 - Lista de nodos recorridos
+            ## 5 - Mensaje
+            ## 6 - Tipo de algoritmo
 
-            print(type(yaml.load(y)))
+            y = msg['body']
+            if len(y.split("|")) > 2:
+                
+                y = y.split("|")
+                x= y[4]
+                x = x.split(" ")
 
-            #print(type(y))
-    
-            # if user not in y['nodes']:
-            #     if user !=  y['receiver']:
-            #         contactos = xmpp.client_roster
-            #         contactos = contactos.keys()
-            #         contactos = list(contactos)
+                
+                if user not in x:
+                    if user !=  y[1]:
 
-            #         contactos.remove(user)
+                        saltos = y[2] + '1'
+                        distancia = y[3] + '1'
+                        nodos = y[4]+" "+ user 
 
-            #         for i in range(len(contactos)):
+                        contactos = xmpp.client_roster
+                        contactos = contactos.keys()
+                        contactos = list(contactos)
+                        nodos = y[4]+" "+user
 
-            #             full_message = {
-            #             "transmitter": user,
-            #             "receiver": y['user'],
-            #             "jumps": str(y['jumps']+1),
-            #             "distance": str(y['distance']+1),
-            #             "node_list": nodos.append(user),
-            #             "message": y['message'], 
-                        
-            #             }   
-            #             full_message = json.dumps(full_message)
-
-            #             xmpp.send_message(mto= 'michi222@alumchat.xyz', mbody = full_message, mtype = 'chat')
-            #     else: 
-            #         print("Mensaje: " )
-            #         print(y['message'])
-            #         print("Este mensaje paso por: " )
-            #         print(y['nodos'])
-
-        
+                        for i in range(len(contactos)):
+                            
+                            full_message = y[0]+"|"+y[1]+"|"+saltos+"|"+distancia+"|"+nodos+"|"+y[5]+"|"+y[6]
+                            full_message = str(full_message)    
+                            xmpp.send_message(mto= y[1], mbody = full_message, mtype = 'chat')
+                            
+                    else: 
+                        print("")
+                        print("Enviado de: "+y[0])
+                        print("Mensaje: " )
+                        print(y[5])
+                        print("Este mensaje paso por: " )
+                        print(y[4])
+                        print("")
+                        print("Distancia")
+                        print(y[3])
+  
+            else:
+                print(msg['body'])
             
     def delete(self):
         resp = self.Iq()
@@ -174,7 +181,7 @@ if __name__ == '__main__':
         xmpp.process(block=False) 
 
         x = 0
-        nodos = []
+        nodos = ''
         
         while(True):
             main_menu()
@@ -199,9 +206,9 @@ if __name__ == '__main__':
                 if(opcion == "1"):
                     print("FLOADING")
                 
-                    x = x + 1
+                   
 
-                    nodos.append(opts.jid)
+                    nodos = opts.jid
                     # Send message
                     user = input("Who is the message for?: ")
                     message = input("Message:")
@@ -211,24 +218,24 @@ if __name__ == '__main__':
                     y = xmpp.client_roster
                     y = y.keys()
                     y = list(y)
+                    y.remove(nodos)
 
                     for i in range(len(y)) :
-
-                        full_message = {
-                        "transmitter": opts.jid,
-                        "receiver": user,
-                        "jumps": str(x),
-                        "distance": str(x),
-                        "node_list": nodos,
-                        "message": message, 
+                        ## 0 - Persona que quiere enviar
+                        ## 1 - Usuario a el que queremos enviar
+                        ## 2 - Saltos
+                        ## 3 -Distancia
+                        ## 4 - Lista de nodos recorridos
+                        ## 5 - Mensaje
+                        ## 6 - Tipo de algoritmo
+                         
+                        full_message = opts.jid+"|"+user+"|"+'1'+"|"+'1'+"|"+nodos+"|"+message+"|"+"flooding"
                         
-                        }   
-                        full_message = str(full_message)
                         ##mto = (y[i])
-                        xmpp.send_message(mto= 'michi222@alumchat.xyz', mbody = full_message, mtype = 'chat')
+                        xmpp.send_message(mto= y[i], mbody = full_message, mtype = 'chat')
                     print("Message sent\n")
-                x = 0
-                node = []
+                
+                nodos = ''
                 
                     
                 if(opcion == "2"):
